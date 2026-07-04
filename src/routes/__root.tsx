@@ -94,6 +94,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "CivicOS — India's Citizen Operating System" },
+      { name: "description", content: "One AI assistant for every Indian government interaction. Discover schemes, understand rights, file RTIs and complaints, and track applications end-to-end." },
+      { property: "og:description", content: "One AI assistant for every Indian government interaction. Discover schemes, understand rights, file RTIs and complaints, and track applications end-to-end." },
+      { name: "twitter:description", content: "One AI assistant for every Indian government interaction. Discover schemes, understand rights, file RTIs and complaints, and track applications end-to-end." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/43f06373-3715-4837-9a96-a1f6d6510b79/id-preview-b2854b6c--d1dc2254-00de-45bd-a960-88f6351c5d6e.lovable.app-1783156841909.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/43f06373-3715-4837-9a96-a1f6d6510b79/id-preview-b2854b6c--d1dc2254-00de-45bd-a960-88f6351c5d6e.lovable.app-1783156841909.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
