@@ -97,7 +97,6 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     const ai = createLovableAi();
     const messages = [
-      { role: "system" as const, content: CIVIC_SYSTEM },
       ...(prior ?? []).map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
@@ -107,8 +106,9 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     let assistantText = "";
     try {
-      const { text } = await generateText({ model: ai(MODEL), messages });
+      const { text } = await generateText({ model: ai(MODEL), system: CIVIC_SYSTEM, messages });
       assistantText = text;
+
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("429")) throw new Error("Rate limit reached. Please try again in a moment.");
@@ -179,12 +179,11 @@ Only include schemes you are confident exist. Prefer well-known central schemes 
     try {
       const res = await generateText({
         model: ai(MODEL),
-        messages: [
-          { role: "system", content: "You output only valid JSON arrays. No markdown fences." },
-          { role: "user", content: prompt },
-        ],
+        system: "You output only valid JSON arrays. No markdown fences.",
+        prompt,
       });
       raw = res.text;
+
     } catch (e) {
       throw new Error("Failed to fetch schemes: " + (e instanceof Error ? e.message : String(e)));
     }
@@ -247,11 +246,10 @@ Output only the letter text. No preamble, no markdown fences.`;
     try {
       const res = await generateText({
         model: ai(MODEL),
-        messages: [
-          { role: "system", content: "You are a legal drafting assistant for Indian citizens." },
-          { role: "user", content: prompt },
-        ],
+        system: "You are a legal drafting assistant for Indian citizens.",
+        prompt,
       });
+
       text = res.text.trim();
     } catch (e) {
       throw new Error("Failed to draft letter: " + (e instanceof Error ? e.message : String(e)));
