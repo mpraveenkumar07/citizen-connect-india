@@ -191,10 +191,11 @@ Only include schemes you are confident exist. Prefer well-known central schemes 
 
     const jsonStart = raw.indexOf("[");
     const jsonEnd = raw.lastIndexOf("]");
-    let schemes: unknown[] = [];
+    let schemes: Scheme[] = [];
     if (jsonStart >= 0 && jsonEnd > jsonStart) {
       try {
-        schemes = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+        const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+        if (Array.isArray(parsed)) schemes = parsed as Scheme[];
       } catch {
         schemes = [];
       }
@@ -203,7 +204,7 @@ Only include schemes you are confident exist. Prefer well-known central schemes 
     await context.supabase.from("scheme_searches").insert({
       user_id: context.userId,
       profile: data,
-      results: schemes,
+      results: schemes as unknown as never,
     });
 
     return { schemes };
