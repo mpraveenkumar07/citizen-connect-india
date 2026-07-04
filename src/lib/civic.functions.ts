@@ -97,7 +97,6 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     const ai = createLovableAi();
     const messages = [
-      { role: "system" as const, content: CIVIC_SYSTEM },
       ...(prior ?? []).map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
@@ -107,8 +106,9 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
     let assistantText = "";
     try {
-      const { text } = await generateText({ model: ai(MODEL), messages });
+      const { text } = await generateText({ model: ai(MODEL), system: CIVIC_SYSTEM, messages });
       assistantText = text;
+
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("429")) throw new Error("Rate limit reached. Please try again in a moment.");
