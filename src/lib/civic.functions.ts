@@ -179,12 +179,11 @@ Only include schemes you are confident exist. Prefer well-known central schemes 
     try {
       const res = await generateText({
         model: ai(MODEL),
-        messages: [
-          { role: "system", content: "You output only valid JSON arrays. No markdown fences." },
-          { role: "user", content: prompt },
-        ],
+        system: "You output only valid JSON arrays. No markdown fences.",
+        prompt,
       });
       raw = res.text;
+
     } catch (e) {
       throw new Error("Failed to fetch schemes: " + (e instanceof Error ? e.message : String(e)));
     }
