@@ -246,11 +246,10 @@ Output only the letter text. No preamble, no markdown fences.`;
     try {
       const res = await generateText({
         model: ai(MODEL),
-        messages: [
-          { role: "system", content: "You are a legal drafting assistant for Indian citizens." },
-          { role: "user", content: prompt },
-        ],
+        system: "You are a legal drafting assistant for Indian citizens.",
+        prompt,
       });
+
       text = res.text.trim();
     } catch (e) {
       throw new Error("Failed to draft letter: " + (e instanceof Error ? e.message : String(e)));
