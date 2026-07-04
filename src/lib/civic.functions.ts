@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateText } from "ai";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAi } from "./ai-gateway.server";
 
 const MODEL = "google/gemini-3-flash-preview";
@@ -14,125 +13,37 @@ const CIVIC_SYSTEM = `You are CivicOS, an AI assistant for Indian citizens navig
 - Never fabricate scheme names, section numbers, or URLs. If you don't know, say so.
 - Respond in the same language the user writes in (English, Hindi, or Hinglish).`;
 
-// ---------- Threads ----------
-
-export const listThreads = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("chat_threads")
-      .select("id, title, updated_at")
-      .order("updated_at", { ascending: false })
-      .limit(50);
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
-
-export const createThread = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("chat_threads")
-      .insert({ user_id: context.userId, title: "New chat" })
-      .select("id, title, updated_at")
-      .single();
-    if (error) throw new Error(error.message);
-    return data;
-  });
-
-export const getMessages = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ threadId: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
-      .from("chat_messages")
-      .select("id, role, content, created_at")
-      .eq("thread_id", data.threadId)
-      .order("created_at", { ascending: true });
-    if (error) throw new Error(error.message);
-    return rows ?? [];
-  });
-
-export const deleteThread = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ threadId: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("chat_threads")
-      .delete()
-      .eq("id", data.threadId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-// ---------- Chat send (non-streaming, saves both sides) ----------
+// ---------- Chat (stateless, no auth) ----------
 
 export const sendChatMessage = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({
-      threadId: z.string().uuid(),
-      content: z.string().min(1).max(4000),
+      messages: z
+        .array(
+          z.object({
+            role: z.enum(["user", "assistant"]),
+            content: z.string().min(1).max(4000),
+          })
+        )
+        .min(1)
+        .max(40),
     }).parse(d)
   )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    // Load prior messages
-    const { data: prior } = await supabase
-      .from("chat_messages")
-      .select("role, content")
-      .eq("thread_id", data.threadId)
-      .order("created_at", { ascending: true })
-      .limit(30);
-
-    // Insert user message
-    const { error: uErr } = await supabase.from("chat_messages").insert({
-      thread_id: data.threadId,
-      user_id: userId,
-      role: "user",
-      content: data.content,
-    });
-    if (uErr) throw new Error(uErr.message);
-
+  .handler(async ({ data }) => {
     const ai = createLovableAi();
-    const messages = [
-      ...(prior ?? []).map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
-      { role: "user" as const, content: data.content },
-    ];
-
-    let assistantText = "";
     try {
-      const { text } = await generateText({ model: ai(MODEL), system: CIVIC_SYSTEM, messages });
-      assistantText = text;
-
+      const { text } = await generateText({
+        model: ai(MODEL),
+        system: CIVIC_SYSTEM,
+        messages: data.messages,
+      });
+      return { assistant: text };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("429")) throw new Error("Rate limit reached. Please try again in a moment.");
       if (msg.includes("402")) throw new Error("AI credits exhausted. Please top up your workspace.");
       throw new Error("Assistant failed to respond: " + msg);
     }
-
-    await supabase.from("chat_messages").insert({
-      thread_id: data.threadId,
-      user_id: userId,
-      role: "assistant",
-      content: assistantText,
-    });
-
-    // Update thread title from first user message + bump updated_at
-    const title = (prior?.length ?? 0) === 0
-      ? data.content.slice(0, 60)
-      : undefined;
-    await supabase
-      .from("chat_threads")
-      .update({ updated_at: new Date().toISOString(), ...(title ? { title } : {}) })
-      .eq("id", data.threadId);
-
-    return { assistant: assistantText };
   });
 
 // ---------- Scheme eligibility ----------
@@ -157,9 +68,8 @@ const schemeProfile = z.object({
 });
 
 export const findSchemes = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => schemeProfile.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const ai = createLovableAi();
     const prompt = `A citizen profile:
 - State: ${data.state}
@@ -183,7 +93,6 @@ Only include schemes you are confident exist. Prefer well-known central schemes 
         prompt,
       });
       raw = res.text;
-
     } catch (e) {
       throw new Error("Failed to fetch schemes: " + (e instanceof Error ? e.message : String(e)));
     }
@@ -199,12 +108,6 @@ Only include schemes you are confident exist. Prefer well-known central schemes 
         schemes = [];
       }
     }
-
-    await context.supabase.from("scheme_searches").insert({
-      user_id: context.userId,
-      profile: data,
-      results: schemes as unknown as never,
-    });
 
     return { schemes };
   });
@@ -222,9 +125,8 @@ const complaintInput = z.object({
 });
 
 export const generateComplaint = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => complaintInput.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const ai = createLovableAi();
     const isRti = data.kind === "rti";
     const instruction = isRti
@@ -249,25 +151,10 @@ Output only the letter text. No preamble, no markdown fences.`;
         system: "You are a legal drafting assistant for Indian citizens.",
         prompt,
       });
-
       text = res.text.trim();
     } catch (e) {
       throw new Error("Failed to draft letter: " + (e instanceof Error ? e.message : String(e)));
     }
 
-    const { data: saved, error } = await context.supabase
-      .from("complaint_drafts")
-      .insert({
-        user_id: context.userId,
-        kind: data.kind,
-        subject: data.subject,
-        authority: data.authority,
-        input_data: data,
-        generated_text: text,
-      })
-      .select("id")
-      .single();
-    if (error) throw new Error(error.message);
-
-    return { id: saved.id, text };
+    return { id: crypto.randomUUID(), text };
   });

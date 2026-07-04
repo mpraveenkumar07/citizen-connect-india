@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteNav, SiteFooter } from "../components/site-nav";
 import { Toaster } from "sonner";
+import { DemoNoticeModal } from "../components/demo-notice-modal";
 
 function NotFoundComponent() {
   return (
@@ -145,6 +146,7 @@ function RootComponent() {
         <SiteFooter />
       </div>
       <Toaster position="top-right" richColors />
+      <DemoNoticeModal />
     </QueryClientProvider>
   );
 }
