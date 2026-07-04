@@ -137,6 +137,15 @@ export const sendChatMessage = createServerFn({ method: "POST" })
 
 // ---------- Scheme eligibility ----------
 
+export type Scheme = {
+  name: string;
+  department?: string;
+  eligibility?: string;
+  benefit?: string;
+  how_to_apply?: string;
+  confidence?: "high" | "medium" | "low";
+};
+
 const schemeProfile = z.object({
   state: z.string().min(1),
   age: z.number().int().min(0).max(120),
