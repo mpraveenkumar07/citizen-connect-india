@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppSchemesRouteImport } from './routes/_authenticated/app.schemes'
+import { Route as AuthenticatedAppPolicyRouteImport } from './routes/_authenticated/app.policy'
 import { Route as AuthenticatedAppDepartmentsRouteImport } from './routes/_authenticated/app.departments'
 import { Route as AuthenticatedAppComplaintsRouteImport } from './routes/_authenticated/app.complaints'
 import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated/app.chat'
@@ -72,6 +73,11 @@ const AuthenticatedAppSchemesRoute = AuthenticatedAppSchemesRouteImport.update({
   path: '/schemes',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppPolicyRoute = AuthenticatedAppPolicyRouteImport.update({
+  id: '/policy',
+  path: '/policy',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppDepartmentsRoute =
   AuthenticatedAppDepartmentsRouteImport.update({
     id: '/departments',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/app/policy': typeof AuthenticatedAppPolicyRoute
   '/app/schemes': typeof AuthenticatedAppSchemesRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/app/policy': typeof AuthenticatedAppPolicyRoute
   '/app/schemes': typeof AuthenticatedAppSchemesRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/_authenticated/app/chat': typeof AuthenticatedAppChatRoute
   '/_authenticated/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/_authenticated/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/_authenticated/app/policy': typeof AuthenticatedAppPolicyRoute
   '/_authenticated/app/schemes': typeof AuthenticatedAppSchemesRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/complaints'
     | '/app/departments'
+    | '/app/policy'
     | '/app/schemes'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/complaints'
     | '/app/departments'
+    | '/app/policy'
     | '/app/schemes'
     | '/app'
   id:
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/chat'
     | '/_authenticated/app/complaints'
     | '/_authenticated/app/departments'
+    | '/_authenticated/app/policy'
     | '/_authenticated/app/schemes'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
@@ -260,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSchemesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/policy': {
+      id: '/_authenticated/app/policy'
+      path: '/policy'
+      fullPath: '/app/policy'
+      preLoaderRoute: typeof AuthenticatedAppPolicyRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/departments': {
       id: '/_authenticated/app/departments'
       path: '/departments'
@@ -288,6 +307,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRoute
   AuthenticatedAppComplaintsRoute: typeof AuthenticatedAppComplaintsRoute
   AuthenticatedAppDepartmentsRoute: typeof AuthenticatedAppDepartmentsRoute
+  AuthenticatedAppPolicyRoute: typeof AuthenticatedAppPolicyRoute
   AuthenticatedAppSchemesRoute: typeof AuthenticatedAppSchemesRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
@@ -296,6 +316,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
   AuthenticatedAppComplaintsRoute: AuthenticatedAppComplaintsRoute,
   AuthenticatedAppDepartmentsRoute: AuthenticatedAppDepartmentsRoute,
+  AuthenticatedAppPolicyRoute: AuthenticatedAppPolicyRoute,
   AuthenticatedAppSchemesRoute: AuthenticatedAppSchemesRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
