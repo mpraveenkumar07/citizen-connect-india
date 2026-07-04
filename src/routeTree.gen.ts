@@ -16,7 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ArchitectureRouteImport } from './routes/architecture'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppSchemesRouteImport } from './routes/_authenticated/app.schemes'
 import { Route as AuthenticatedAppComplaintsRouteImport } from './routes/_authenticated/app.complaints'
 import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated/app.chat'
@@ -55,26 +55,26 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/app/',
+  path: '/app/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppSchemesRoute = AuthenticatedAppSchemesRouteImport.update({
-  id: '/schemes',
-  path: '/schemes',
-  getParentRoute: () => AuthenticatedAppRoute,
+  id: '/app/schemes',
+  path: '/app/schemes',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppComplaintsRoute =
   AuthenticatedAppComplaintsRouteImport.update({
-    id: '/complaints',
-    path: '/complaints',
-    getParentRoute: () => AuthenticatedAppRoute,
+    id: '/app/complaints',
+    path: '/app/complaints',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAppChatRoute = AuthenticatedAppChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => AuthenticatedAppRoute,
+  id: '/app/chat',
+  path: '/app/chat',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -84,10 +84,10 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/journeys': typeof JourneysRoute
   '/pitch': typeof PitchRoute
-  '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/schemes': typeof AuthenticatedAppSchemesRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -96,10 +96,10 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/journeys': typeof JourneysRoute
   '/pitch': typeof PitchRoute
-  '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/schemes': typeof AuthenticatedAppSchemesRoute
+  '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -110,10 +110,10 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/journeys': typeof JourneysRoute
   '/pitch': typeof PitchRoute
-  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/chat': typeof AuthenticatedAppChatRoute
   '/_authenticated/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/_authenticated/app/schemes': typeof AuthenticatedAppSchemesRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -124,10 +124,10 @@ export interface FileRouteTypes {
     | '/features'
     | '/journeys'
     | '/pitch'
-    | '/app'
     | '/app/chat'
     | '/app/complaints'
     | '/app/schemes'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -136,10 +136,10 @@ export interface FileRouteTypes {
     | '/features'
     | '/journeys'
     | '/pitch'
-    | '/app'
     | '/app/chat'
     | '/app/complaints'
     | '/app/schemes'
+    | '/app'
   id:
     | '__root__'
     | '/'
@@ -149,10 +149,10 @@ export interface FileRouteTypes {
     | '/features'
     | '/journeys'
     | '/pitch'
-    | '/_authenticated/app'
     | '/_authenticated/app/chat'
     | '/_authenticated/app/complaints'
     | '/_authenticated/app/schemes'
+    | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,58 +216,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/app': {
-      id: '/_authenticated/app'
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
       path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/schemes': {
       id: '/_authenticated/app/schemes'
-      path: '/schemes'
+      path: '/app/schemes'
       fullPath: '/app/schemes'
       preLoaderRoute: typeof AuthenticatedAppSchemesRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/complaints': {
       id: '/_authenticated/app/complaints'
-      path: '/complaints'
+      path: '/app/complaints'
       fullPath: '/app/complaints'
       preLoaderRoute: typeof AuthenticatedAppComplaintsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app/chat': {
       id: '/_authenticated/app/chat'
-      path: '/chat'
+      path: '/app/chat'
       fullPath: '/app/chat'
       preLoaderRoute: typeof AuthenticatedAppChatRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-interface AuthenticatedAppRouteChildren {
+interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRoute
   AuthenticatedAppComplaintsRoute: typeof AuthenticatedAppComplaintsRoute
   AuthenticatedAppSchemesRoute: typeof AuthenticatedAppSchemesRoute
-}
-
-const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
-  AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
-  AuthenticatedAppComplaintsRoute: AuthenticatedAppComplaintsRoute,
-  AuthenticatedAppSchemesRoute: AuthenticatedAppSchemesRoute,
-}
-
-const AuthenticatedAppRouteWithChildren =
-  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
-
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
+  AuthenticatedAppComplaintsRoute: AuthenticatedAppComplaintsRoute,
+  AuthenticatedAppSchemesRoute: AuthenticatedAppSchemesRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

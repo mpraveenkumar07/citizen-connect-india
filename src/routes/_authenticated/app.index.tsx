@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { MessageSquare, FileText, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-export const Route = createFileRoute("/_authenticated/app")({
+export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({ meta: [{ title: "CivicOS — Dashboard" }] }),
   component: Dashboard,
 });
