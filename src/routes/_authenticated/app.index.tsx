@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MessageSquare, FileText, Search } from "lucide-react";
+import { MessageSquare, FileText, Search, Building2, BellRing } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -26,6 +26,18 @@ const tiles = [
     title: "Complaint & RTI Generator",
     desc: "Draft a formal complaint or RTI application in seconds — ready to send.",
   },
+  {
+    to: "/app/departments",
+    icon: Building2,
+    title: "Government Department Finder",
+    desc: "Describe a problem — get the right office, forms, contact, and next steps.",
+  },
+  {
+    to: "/app/policy",
+    icon: BellRing,
+    title: "Policy & Law Update Engine",
+    desc: "Personalised digest of new schemes, laws, notifications, and upcoming deadlines.",
+  },
 ] as const;
 
 function Dashboard() {
@@ -34,6 +46,7 @@ function Dashboard() {
       <h1 className="text-3xl font-bold tracking-tight">Your CivicOS workspace</h1>
       <p className="mt-2 text-muted-foreground">Pick a tool to get started.</p>
       <div className="mt-8 grid gap-4 md:grid-cols-3">
+
         {tiles.map((t) => (
           <Link key={t.to} to={t.to}>
             <Card className="group h-full p-6 transition-all hover:border-primary hover:shadow-lg">

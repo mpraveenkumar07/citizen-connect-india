@@ -158,3 +158,136 @@ Output only the letter text. No preamble, no markdown fences.`;
 
     return { id: crypto.randomUUID(), text };
   });
+
+// ---------- Government Department Finder ----------
+
+export type Department = {
+  name: string;
+  level: "Central" | "State" | "District" | "Municipal";
+  jurisdiction?: string;
+  address?: string;
+  contact?: string;
+  website?: string;
+  forms?: string;
+  documents?: string;
+  next_steps?: string;
+  confidence?: "high" | "medium" | "low";
+};
+
+const departmentInput = z.object({
+  problem: z.string().min(5).max(600),
+  state: z.string().min(1).max(80),
+  city: z.string().max(80).optional().default(""),
+});
+
+export const findDepartment = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => departmentInput.parse(d))
+  .handler(async ({ data }) => {
+    const ai = createLovableAi();
+    const prompt = `Citizen problem: "${data.problem}"
+Location: ${data.city ? data.city + ", " : ""}${data.state}, India.
+
+Identify the 3-4 most relevant Indian government departments/offices this citizen should approach (mix of Central, State, District, or Municipal as appropriate).
+Return ONLY a JSON array (no markdown) of objects:
+{"name": string, "level": "Central"|"State"|"District"|"Municipal", "jurisdiction": string, "address": string, "contact": string, "website": string, "forms": string, "documents": string, "next_steps": string, "confidence": "high"|"medium"|"low"}
+
+- "address": general office location guidance (do not fabricate street numbers if unsure — say "District collectorate, <city>" style)
+- "contact": known helpline number or portal, else ""
+- "website": official gov.in / nic.in URL only if you are confident; else ""
+- "forms": name of the form/application to file
+- "documents": comma-separated documents required
+- "next_steps": 1-2 sentence action plan
+Never invent URLs or phone numbers.`;
+
+    let raw = "";
+    try {
+      const res = await generateText({
+        model: ai(MODEL),
+        system: "You output only valid JSON arrays. No markdown fences.",
+        prompt,
+      });
+      raw = res.text;
+    } catch (e) {
+      throw new Error("Failed to find department: " + (e instanceof Error ? e.message : String(e)));
+    }
+
+    const s = raw.indexOf("[");
+    const e = raw.lastIndexOf("]");
+    let departments: Department[] = [];
+    if (s >= 0 && e > s) {
+      try {
+        const parsed = JSON.parse(raw.slice(s, e + 1));
+        if (Array.isArray(parsed)) departments = parsed as Department[];
+      } catch {
+        departments = [];
+      }
+    }
+    return { departments };
+  });
+
+// ---------- Policy & Law Update Engine ----------
+
+export type PolicyUpdate = {
+  title: string;
+  category: "Scheme" | "Law" | "Notification" | "Court Order" | "Deadline";
+  date?: string;
+  source?: string;
+  summary: string;
+  why_it_matters?: string;
+  action?: string;
+  deadline?: string;
+  confidence?: "high" | "medium" | "low";
+};
+
+const policyInput = z.object({
+  state: z.string().min(1).max(80),
+  interests: z.string().min(1).max(300),
+  occupation: z.string().max(120).optional().default(""),
+  timeframe: z.enum(["7d", "30d", "90d"]).default("30d"),
+});
+
+export const getPolicyUpdates = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => policyInput.parse(d))
+  .handler(async ({ data }) => {
+    const ai = createLovableAi();
+    const window =
+      data.timeframe === "7d" ? "the last 7 days" : data.timeframe === "90d" ? "the last 3 months" : "the last 30 days";
+    const prompt = `Generate a personalised policy & law update digest for an Indian citizen.
+
+Profile:
+- State: ${data.state}
+- Occupation: ${data.occupation || "not specified"}
+- Interests / life areas: ${data.interests}
+- Timeframe: ${window}
+
+Return ONLY a JSON array (no markdown) of 5-7 recent, realistic Indian policy/law updates relevant to this profile. Each object:
+{"title": string, "category": "Scheme"|"Law"|"Notification"|"Court Order"|"Deadline", "date": "YYYY-MM-DD or approx", "source": "Gazette/PIB/Ministry/Supreme Court/High Court/State Govt", "summary": string (2-3 sentences plain language), "why_it_matters": string (1 sentence tied to profile), "action": string (concrete next step), "deadline": string (if any, else ""), "confidence": "high"|"medium"|"low"}
+
+Prefer well-known real developments. If unsure of exact date, use an approximate month and set confidence to "medium" or "low". Never fabricate case numbers or gazette numbers.`;
+
+    let raw = "";
+    try {
+      const res = await generateText({
+        model: ai(MODEL),
+        system: "You output only valid JSON arrays. No markdown fences.",
+        prompt,
+      });
+      raw = res.text;
+    } catch (e) {
+      throw new Error("Failed to fetch updates: " + (e instanceof Error ? e.message : String(e)));
+    }
+
+    const s = raw.indexOf("[");
+    const e2 = raw.lastIndexOf("]");
+    let updates: PolicyUpdate[] = [];
+    if (s >= 0 && e2 > s) {
+      try {
+        const parsed = JSON.parse(raw.slice(s, e2 + 1));
+        if (Array.isArray(parsed)) updates = parsed as PolicyUpdate[];
+      } catch {
+        updates = [];
+      }
+    }
+    return { updates };
+  });
+
