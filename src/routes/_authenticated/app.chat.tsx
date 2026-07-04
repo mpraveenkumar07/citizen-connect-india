@@ -2,13 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import ReactMarkdown from "react-markdown";
-import {
-  listThreads,
-  createThread,
-  getMessages,
-  sendChatMessage,
-  deleteThread,
-} from "@/lib/civic.functions";
+import { sendChatMessage } from "@/lib/civic.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,96 +14,128 @@ export const Route = createFileRoute("/_authenticated/app/chat")({
   component: ChatPage,
 });
 
-type Thread = { id: string; title: string; updated_at: string };
-type Msg = { id: string; role: string; content: string; created_at: string };
+type Msg = { id: string; role: "user" | "assistant"; content: string };
+type Thread = { id: string; title: string; updatedAt: number; messages: Msg[] };
+
+const STORAGE_KEY = "civicos.chat.threads.v1";
+
+function loadThreads(): Thread[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveThreads(t: Thread[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(t));
+  } catch {
+    // ignore
+  }
+}
 
 function ChatPage() {
-  const fnList = useServerFn(listThreads);
-  const fnCreate = useServerFn(createThread);
-  const fnGet = useServerFn(getMessages);
   const fnSend = useServerFn(sendChatMessage);
-  const fnDel = useServerFn(deleteThread);
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const refreshThreads = async () => {
-    const t = await fnList();
-    setThreads(t);
-    return t;
-  };
-
-  const openThread = async (id: string) => {
-    setActiveId(id);
-    const m = await fnGet({ data: { threadId: id } });
-    setMessages(m);
-  };
-
-  const newThread = async () => {
-    const t = await fnCreate();
-    await refreshThreads();
-    setActiveId(t.id);
-    setMessages([]);
-  };
-
-  const removeThread = async (id: string) => {
-    await fnDel({ data: { threadId: id } });
-    const t = await refreshThreads();
-    if (activeId === id) {
-      if (t.length > 0) openThread(t[0].id);
-      else {
-        setActiveId(null);
-        setMessages([]);
-      }
-    }
-  };
-
   useEffect(() => {
-    refreshThreads().then((t) => {
-      if (t.length > 0) openThread(t[0].id);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const t = loadThreads();
+    setThreads(t);
+    if (t.length > 0) setActiveId(t[0].id);
   }, []);
 
   useEffect(() => {
+    saveThreads(threads);
+  }, [threads]);
+
+  const active = threads.find((t) => t.id === activeId) ?? null;
+  const messages = active?.messages ?? [];
+
+  useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, sending]);
+  }, [messages.length, sending]);
+
+  const newThread = () => {
+    const t: Thread = {
+      id: crypto.randomUUID(),
+      title: "New chat",
+      updatedAt: Date.now(),
+      messages: [],
+    };
+    setThreads((prev) => [t, ...prev]);
+    setActiveId(t.id);
+  };
+
+  const removeThread = (id: string) => {
+    setThreads((prev) => {
+      const next = prev.filter((t) => t.id !== id);
+      if (activeId === id) setActiveId(next[0]?.id ?? null);
+      return next;
+    });
+  };
 
   const send = async () => {
     if (!input.trim() || sending) return;
-    let threadId = activeId;
-    if (!threadId) {
-      const t = await fnCreate();
-      threadId = t.id;
-      setActiveId(threadId);
-      await refreshThreads();
-    }
     const userContent = input.trim();
     setInput("");
-    const optimistic: Msg = {
-      id: "tmp-" + Date.now(),
-      role: "user",
-      content: userContent,
-      created_at: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, optimistic]);
+
+    let threadId = activeId;
+    let baseThreads = threads;
+    if (!threadId) {
+      const t: Thread = {
+        id: crypto.randomUUID(),
+        title: userContent.slice(0, 60),
+        updatedAt: Date.now(),
+        messages: [],
+      };
+      baseThreads = [t, ...threads];
+      threadId = t.id;
+      setActiveId(threadId);
+    }
+
+    const userMsg: Msg = { id: "u-" + Date.now(), role: "user", content: userContent };
+    const updated = baseThreads.map((t) =>
+      t.id === threadId
+        ? {
+            ...t,
+            title: t.messages.length === 0 ? userContent.slice(0, 60) : t.title,
+            updatedAt: Date.now(),
+            messages: [...t.messages, userMsg],
+          }
+        : t
+    );
+    setThreads(updated);
+
     setSending(true);
     try {
-      const { assistant } = await fnSend({ data: { threadId, content: userContent } });
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: "a-" + Date.now(),
-          role: "assistant",
-          content: assistant,
-          created_at: new Date().toISOString(),
-        },
-      ]);
-      refreshThreads();
+      const history = updated
+        .find((t) => t.id === threadId)!
+        .messages.map((m) => ({ role: m.role, content: m.content }));
+      const { assistant } = await fnSend({ data: { messages: history } });
+      setThreads((prev) =>
+        prev.map((t) =>
+          t.id === threadId
+            ? {
+                ...t,
+                updatedAt: Date.now(),
+                messages: [
+                  ...t.messages,
+                  { id: "a-" + Date.now(), role: "assistant", content: assistant },
+                ],
+              }
+            : t
+        )
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to send");
     } finally {
@@ -134,7 +160,7 @@ function ChatPage() {
                 }`}
               >
                 <button
-                  onClick={() => openThread(t.id)}
+                  onClick={() => setActiveId(t.id)}
                   className="flex-1 truncate text-left"
                   title={t.title}
                 >
@@ -218,7 +244,7 @@ function ChatPage() {
             </Button>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            CivicOS uses AI. Verify official details before acting.
+            CivicOS uses AI. Verify official details before acting. Chats are stored locally in your browser.
           </p>
         </div>
       </Card>
