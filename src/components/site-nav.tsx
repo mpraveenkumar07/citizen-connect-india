@@ -1,10 +1,7 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, LogOut } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
-import { toast } from "sonner";
 
 const links = [
   { to: "/", label: "Home" },
@@ -16,22 +13,6 @@ const links = [
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setUser(s?.user ?? null);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    toast.success("Signed out");
-    navigate({ to: "/" });
-  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -56,20 +37,9 @@ export function SiteNav() {
               {l.label}
             </Link>
           ))}
-          {user ? (
-            <>
-              <Button size="sm" asChild className="ml-2">
-                <Link to="/app">Open app</Link>
-              </Button>
-              <Button size="sm" variant="ghost" onClick={signOut} aria-label="Sign out">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </>
-          ) : (
-            <Button size="sm" asChild className="ml-2">
-              <Link to="/auth">Sign in</Link>
-            </Button>
-          )}
+          <Button size="sm" asChild className="ml-2">
+            <Link to="/app">Open app</Link>
+          </Button>
         </nav>
         <button
           type="button"
@@ -96,17 +66,12 @@ export function SiteNav() {
               </Link>
             ))}
             <Link
-              to={user ? "/app" : "/auth"}
+              to="/app"
               onClick={() => setOpen(false)}
               className="rounded-md px-3 py-2 text-sm font-medium text-primary"
             >
-              {user ? "Open app" : "Sign in"}
+              Open app
             </Link>
-            {user && (
-              <button onClick={signOut} className="rounded-md px-3 py-2 text-left text-sm text-muted-foreground">
-                Sign out
-              </button>
-            )}
           </nav>
         </div>
       )}
