@@ -7,9 +7,9 @@ export const Route = createFileRoute("/_authenticated/app")({
 
 const items = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/chat", label: "AI Assistant", icon: MessageSquare },
-  { to: "/app/schemes", label: "Schemes", icon: Search },
-  { to: "/app/complaints", label: "Complaints / RTI", icon: FileText },
+  { to: "/app/chat", label: "AI Assistant", icon: MessageSquare, exact: false },
+  { to: "/app/schemes", label: "Schemes", icon: Search, exact: false },
+  { to: "/app/complaints", label: "Complaints / RTI", icon: FileText, exact: false },
 ] as const;
 
 function AppLayout() {
