@@ -129,6 +129,19 @@ function Features() {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-5 rounded-lg border border-border/60 bg-muted/40 p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-primary">Inputs you provide</div>
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {f.inputs.map((i) => (
+                  <li key={i}>
+                    <Badge variant="outline" className="text-xs font-normal">{i}</Badge>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-primary">How it works</div>
+              <p className="mt-1 text-sm text-muted-foreground">{f.how}</p>
+            </div>
             <Button asChild size="sm" className="mt-6">
               <Link to={f.to}>
                 Explore now <ArrowRight className="h-4 w-4" />
