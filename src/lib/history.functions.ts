@@ -11,12 +11,20 @@ export type ModuleKey =
   | "tracker"
   | "legal-aid";
 
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [k: string]: JsonValue };
+
 export type ModuleRun = {
   id: string;
   module: ModuleKey;
   title: string;
-  input: unknown;
-  output: unknown;
+  input: JsonValue;
+  output: JsonValue;
   created_at: string;
 };
 
