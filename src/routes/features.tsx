@@ -113,6 +113,11 @@ function Features() {
                 </li>
               ))}
             </ul>
+            <Button asChild size="sm" className="mt-6">
+              <Link to={f.to}>
+                Explore now <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         ))}
       </div>
