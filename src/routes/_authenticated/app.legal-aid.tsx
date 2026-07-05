@@ -46,6 +46,14 @@ function LegalAidPage() {
       const { contacts } = await fn({ data: { issue, state, city, urgency } });
       setContacts(contacts);
       if (contacts.length === 0) toast.error("No contacts generated. Try rephrasing.");
+      else void save({
+        data: {
+          module: "legal-aid",
+          title: `${urgency} · ${city ? city + ", " : ""}${state} · ${issue.slice(0, 60)}`,
+          input: { issue, state, city, urgency },
+          output: { contacts },
+        },
+      }).catch(() => {});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to find legal aid");
     } finally {

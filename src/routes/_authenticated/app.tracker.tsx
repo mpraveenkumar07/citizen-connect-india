@@ -45,6 +45,14 @@ function TrackerPage() {
       });
       setStatus(status);
       if (!status) toast.error("Couldn't parse status. Try adding more detail.");
+      else void save({
+        data: {
+          module: "tracker",
+          title: `${applicationType} · filed ${filedOn}`,
+          input: { applicationType, authority, filedOn, referenceId, lastUpdate },
+          output: { status },
+        },
+      }).catch(() => {});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to track application");
     } finally {
