@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MessageSquare, FileText, Search, Building2, BellRing, Scale, ClipboardList, LifeBuoy } from "lucide-react";
+import { MessageSquare, FileText, Search, Building2, BellRing, Scale, ClipboardList, LifeBuoy, History } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/app/")({

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { MessageSquare, FileText, Search, LayoutDashboard, Building2, BellRing, Scale, ClipboardList, LifeBuoy } from "lucide-react";
+import { MessageSquare, FileText, Search, LayoutDashboard, Building2, BellRing, Scale, ClipboardList, LifeBuoy, History } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
@@ -15,6 +15,7 @@ const items = [
   { to: "/app/tracker", label: "Tracker", icon: ClipboardList, exact: false },
   { to: "/app/legal-aid", label: "Legal Aid", icon: LifeBuoy, exact: false },
   { to: "/app/policy", label: "Policy Updates", icon: BellRing, exact: false },
+  { to: "/app/history", label: "History", icon: History, exact: false },
 ] as const;
 
 
