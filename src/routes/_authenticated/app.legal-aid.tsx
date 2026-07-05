@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { findLegalAid, type LegalAidContact } from "@/lib/civic.functions";
+import { saveModuleRun } from "@/lib/history.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ const typeColor: Record<LegalAidContact["type"], string> = {
 
 function LegalAidPage() {
   const fn = useServerFn(findLegalAid);
+  const save = useServerFn(saveModuleRun);
   const [issue, setIssue] = useState("Domestic violence — I need urgent help and a place to stay tonight.");
   const [state, setState] = useState("Maharashtra");
   const [city, setCity] = useState("Pune");

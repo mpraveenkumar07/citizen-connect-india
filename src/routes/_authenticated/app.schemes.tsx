@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { findSchemes } from "@/lib/civic.functions";
+import { saveModuleRun } from "@/lib/history.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ type Scheme = {
 
 function Page() {
   const fn = useServerFn(findSchemes);
+  const save = useServerFn(saveModuleRun);
   const [loading, setLoading] = useState(false);
   const [schemes, setSchemes] = useState<Scheme[] | null>(null);
   const [form, setForm] = useState({
@@ -45,6 +47,14 @@ function Page() {
     try {
       const res = await fn({ data: form });
       setSchemes(res.schemes as Scheme[]);
+      void save({
+        data: {
+          module: "schemes",
+          title: `${form.occupation || "Citizen"} in ${form.state || "India"} · ${res.schemes.length} matches`,
+          input: form,
+          output: res,
+        },
+      }).catch(() => {});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed");
     } finally {
