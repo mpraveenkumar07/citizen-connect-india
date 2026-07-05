@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MessageSquare, FileText, Search, Building2, BellRing } from "lucide-react";
+import { MessageSquare, FileText, Search, Building2, BellRing, Scale, ClipboardList, LifeBuoy } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -21,6 +21,12 @@ const tiles = [
     desc: "Tell us about yourself. AI matches you to central & state welfare schemes.",
   },
   {
+    to: "/app/rights",
+    icon: Scale,
+    title: "Rights & Constitution",
+    desc: "Understand which rights, articles, and laws apply to your situation.",
+  },
+  {
     to: "/app/complaints",
     icon: FileText,
     title: "Complaint & RTI Generator",
@@ -31,6 +37,18 @@ const tiles = [
     icon: Building2,
     title: "Government Department Finder",
     desc: "Describe a problem — get the right office, forms, contact, and next steps.",
+  },
+  {
+    to: "/app/tracker",
+    icon: ClipboardList,
+    title: "Application Tracker",
+    desc: "Estimate current stage, statutory deadlines, and your next move.",
+  },
+  {
+    to: "/app/legal-aid",
+    icon: LifeBuoy,
+    title: "Legal Aid Finder",
+    desc: "NALSA / DLSA offices, helplines, NGOs, and emergency contacts near you.",
   },
   {
     to: "/app/policy",
