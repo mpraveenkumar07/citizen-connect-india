@@ -18,8 +18,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppTrackerRouteImport } from './routes/_authenticated/app.tracker'
 import { Route as AuthenticatedAppSchemesRouteImport } from './routes/_authenticated/app.schemes'
+import { Route as AuthenticatedAppRightsRouteImport } from './routes/_authenticated/app.rights'
 import { Route as AuthenticatedAppPolicyRouteImport } from './routes/_authenticated/app.policy'
+import { Route as AuthenticatedAppLegalAidRouteImport } from './routes/_authenticated/app.legal-aid'
 import { Route as AuthenticatedAppDepartmentsRouteImport } from './routes/_authenticated/app.departments'
 import { Route as AuthenticatedAppComplaintsRouteImport } from './routes/_authenticated/app.complaints'
 import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated/app.chat'
@@ -68,9 +71,19 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppTrackerRoute = AuthenticatedAppTrackerRouteImport.update({
+  id: '/tracker',
+  path: '/tracker',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppSchemesRoute = AuthenticatedAppSchemesRouteImport.update({
   id: '/schemes',
   path: '/schemes',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppRightsRoute = AuthenticatedAppRightsRouteImport.update({
+  id: '/rights',
+  path: '/rights',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppPolicyRoute = AuthenticatedAppPolicyRouteImport.update({
@@ -78,6 +91,12 @@ const AuthenticatedAppPolicyRoute = AuthenticatedAppPolicyRouteImport.update({
   path: '/policy',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppLegalAidRoute =
+  AuthenticatedAppLegalAidRouteImport.update({
+    id: '/legal-aid',
+    path: '/legal-aid',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppDepartmentsRoute =
   AuthenticatedAppDepartmentsRouteImport.update({
     id: '/departments',
@@ -107,8 +126,11 @@ export interface FileRoutesByFullPath {
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/app/legal-aid': typeof AuthenticatedAppLegalAidRoute
   '/app/policy': typeof AuthenticatedAppPolicyRoute
+  '/app/rights': typeof AuthenticatedAppRightsRoute
   '/app/schemes': typeof AuthenticatedAppSchemesRoute
+  '/app/tracker': typeof AuthenticatedAppTrackerRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -121,8 +143,11 @@ export interface FileRoutesByTo {
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/app/legal-aid': typeof AuthenticatedAppLegalAidRoute
   '/app/policy': typeof AuthenticatedAppPolicyRoute
+  '/app/rights': typeof AuthenticatedAppRightsRoute
   '/app/schemes': typeof AuthenticatedAppSchemesRoute
+  '/app/tracker': typeof AuthenticatedAppTrackerRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
@@ -138,8 +163,11 @@ export interface FileRoutesById {
   '/_authenticated/app/chat': typeof AuthenticatedAppChatRoute
   '/_authenticated/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/_authenticated/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/_authenticated/app/legal-aid': typeof AuthenticatedAppLegalAidRoute
   '/_authenticated/app/policy': typeof AuthenticatedAppPolicyRoute
+  '/_authenticated/app/rights': typeof AuthenticatedAppRightsRoute
   '/_authenticated/app/schemes': typeof AuthenticatedAppSchemesRoute
+  '/_authenticated/app/tracker': typeof AuthenticatedAppTrackerRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
@@ -155,8 +183,11 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/complaints'
     | '/app/departments'
+    | '/app/legal-aid'
     | '/app/policy'
+    | '/app/rights'
     | '/app/schemes'
+    | '/app/tracker'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -169,8 +200,11 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/complaints'
     | '/app/departments'
+    | '/app/legal-aid'
     | '/app/policy'
+    | '/app/rights'
     | '/app/schemes'
+    | '/app/tracker'
     | '/app'
   id:
     | '__root__'
@@ -185,8 +219,11 @@ export interface FileRouteTypes {
     | '/_authenticated/app/chat'
     | '/_authenticated/app/complaints'
     | '/_authenticated/app/departments'
+    | '/_authenticated/app/legal-aid'
     | '/_authenticated/app/policy'
+    | '/_authenticated/app/rights'
     | '/_authenticated/app/schemes'
+    | '/_authenticated/app/tracker'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
@@ -265,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/tracker': {
+      id: '/_authenticated/app/tracker'
+      path: '/tracker'
+      fullPath: '/app/tracker'
+      preLoaderRoute: typeof AuthenticatedAppTrackerRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/schemes': {
       id: '/_authenticated/app/schemes'
       path: '/schemes'
@@ -272,11 +316,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSchemesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/rights': {
+      id: '/_authenticated/app/rights'
+      path: '/rights'
+      fullPath: '/app/rights'
+      preLoaderRoute: typeof AuthenticatedAppRightsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/policy': {
       id: '/_authenticated/app/policy'
       path: '/policy'
       fullPath: '/app/policy'
       preLoaderRoute: typeof AuthenticatedAppPolicyRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/legal-aid': {
+      id: '/_authenticated/app/legal-aid'
+      path: '/legal-aid'
+      fullPath: '/app/legal-aid'
+      preLoaderRoute: typeof AuthenticatedAppLegalAidRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/departments': {
@@ -307,8 +365,11 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRoute
   AuthenticatedAppComplaintsRoute: typeof AuthenticatedAppComplaintsRoute
   AuthenticatedAppDepartmentsRoute: typeof AuthenticatedAppDepartmentsRoute
+  AuthenticatedAppLegalAidRoute: typeof AuthenticatedAppLegalAidRoute
   AuthenticatedAppPolicyRoute: typeof AuthenticatedAppPolicyRoute
+  AuthenticatedAppRightsRoute: typeof AuthenticatedAppRightsRoute
   AuthenticatedAppSchemesRoute: typeof AuthenticatedAppSchemesRoute
+  AuthenticatedAppTrackerRoute: typeof AuthenticatedAppTrackerRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
@@ -316,8 +377,11 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
   AuthenticatedAppComplaintsRoute: AuthenticatedAppComplaintsRoute,
   AuthenticatedAppDepartmentsRoute: AuthenticatedAppDepartmentsRoute,
+  AuthenticatedAppLegalAidRoute: AuthenticatedAppLegalAidRoute,
   AuthenticatedAppPolicyRoute: AuthenticatedAppPolicyRoute,
+  AuthenticatedAppRightsRoute: AuthenticatedAppRightsRoute,
   AuthenticatedAppSchemesRoute: AuthenticatedAppSchemesRoute,
+  AuthenticatedAppTrackerRoute: AuthenticatedAppTrackerRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
