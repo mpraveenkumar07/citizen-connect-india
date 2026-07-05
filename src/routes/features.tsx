@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  MessageSquare, Sparkles, Scale, FileText, Building2, ClipboardList, LifeBuoy, BellRing,
+  MessageSquare, Sparkles, Scale, FileText, Building2, ClipboardList, LifeBuoy, BellRing, ArrowRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
