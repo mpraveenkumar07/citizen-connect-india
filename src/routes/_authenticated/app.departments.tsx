@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { findDepartment, type Department } from "@/lib/civic.functions";
+import { saveModuleRun } from "@/lib/history.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/app/departments")({
 
 function DepartmentsPage() {
   const fn = useServerFn(findDepartment);
+  const save = useServerFn(saveModuleRun);
   const [problem, setProblem] = useState("");
   const [state, setState] = useState("Maharashtra");
   const [city, setCity] = useState("");
@@ -33,6 +35,14 @@ function DepartmentsPage() {
       const { departments } = await fn({ data: { problem, state, city } });
       setResults(departments);
       if (departments.length === 0) toast.error("No departments found. Try rephrasing your problem.");
+      else void save({
+        data: {
+          module: "departments",
+          title: `${problem.slice(0, 60)} · ${city ? city + ", " : ""}${state}`,
+          input: { problem, state, city },
+          output: { departments },
+        },
+      }).catch(() => {});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to find department");
     } finally {

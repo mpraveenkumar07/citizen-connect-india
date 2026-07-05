@@ -23,6 +23,7 @@ import { Route as AuthenticatedAppSchemesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppRightsRouteImport } from './routes/_authenticated/app.rights'
 import { Route as AuthenticatedAppPolicyRouteImport } from './routes/_authenticated/app.policy'
 import { Route as AuthenticatedAppLegalAidRouteImport } from './routes/_authenticated/app.legal-aid'
+import { Route as AuthenticatedAppHistoryRouteImport } from './routes/_authenticated/app.history'
 import { Route as AuthenticatedAppDepartmentsRouteImport } from './routes/_authenticated/app.departments'
 import { Route as AuthenticatedAppComplaintsRouteImport } from './routes/_authenticated/app.complaints'
 import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated/app.chat'
@@ -97,6 +98,11 @@ const AuthenticatedAppLegalAidRoute =
     path: '/legal-aid',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppHistoryRoute = AuthenticatedAppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppDepartmentsRoute =
   AuthenticatedAppDepartmentsRouteImport.update({
     id: '/departments',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/app/history': typeof AuthenticatedAppHistoryRoute
   '/app/legal-aid': typeof AuthenticatedAppLegalAidRoute
   '/app/policy': typeof AuthenticatedAppPolicyRoute
   '/app/rights': typeof AuthenticatedAppRightsRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/app/history': typeof AuthenticatedAppHistoryRoute
   '/app/legal-aid': typeof AuthenticatedAppLegalAidRoute
   '/app/policy': typeof AuthenticatedAppPolicyRoute
   '/app/rights': typeof AuthenticatedAppRightsRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/_authenticated/app/chat': typeof AuthenticatedAppChatRoute
   '/_authenticated/app/complaints': typeof AuthenticatedAppComplaintsRoute
   '/_authenticated/app/departments': typeof AuthenticatedAppDepartmentsRoute
+  '/_authenticated/app/history': typeof AuthenticatedAppHistoryRoute
   '/_authenticated/app/legal-aid': typeof AuthenticatedAppLegalAidRoute
   '/_authenticated/app/policy': typeof AuthenticatedAppPolicyRoute
   '/_authenticated/app/rights': typeof AuthenticatedAppRightsRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/complaints'
     | '/app/departments'
+    | '/app/history'
     | '/app/legal-aid'
     | '/app/policy'
     | '/app/rights'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/complaints'
     | '/app/departments'
+    | '/app/history'
     | '/app/legal-aid'
     | '/app/policy'
     | '/app/rights'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/chat'
     | '/_authenticated/app/complaints'
     | '/_authenticated/app/departments'
+    | '/_authenticated/app/history'
     | '/_authenticated/app/legal-aid'
     | '/_authenticated/app/policy'
     | '/_authenticated/app/rights'
@@ -337,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppLegalAidRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/history': {
+      id: '/_authenticated/app/history'
+      path: '/history'
+      fullPath: '/app/history'
+      preLoaderRoute: typeof AuthenticatedAppHistoryRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/departments': {
       id: '/_authenticated/app/departments'
       path: '/departments'
@@ -365,6 +384,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRoute
   AuthenticatedAppComplaintsRoute: typeof AuthenticatedAppComplaintsRoute
   AuthenticatedAppDepartmentsRoute: typeof AuthenticatedAppDepartmentsRoute
+  AuthenticatedAppHistoryRoute: typeof AuthenticatedAppHistoryRoute
   AuthenticatedAppLegalAidRoute: typeof AuthenticatedAppLegalAidRoute
   AuthenticatedAppPolicyRoute: typeof AuthenticatedAppPolicyRoute
   AuthenticatedAppRightsRoute: typeof AuthenticatedAppRightsRoute
@@ -377,6 +397,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
   AuthenticatedAppComplaintsRoute: AuthenticatedAppComplaintsRoute,
   AuthenticatedAppDepartmentsRoute: AuthenticatedAppDepartmentsRoute,
+  AuthenticatedAppHistoryRoute: AuthenticatedAppHistoryRoute,
   AuthenticatedAppLegalAidRoute: AuthenticatedAppLegalAidRoute,
   AuthenticatedAppPolicyRoute: AuthenticatedAppPolicyRoute,
   AuthenticatedAppRightsRoute: AuthenticatedAppRightsRoute,

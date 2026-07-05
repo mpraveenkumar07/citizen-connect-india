@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateComplaint } from "@/lib/civic.functions";
+import { saveModuleRun } from "@/lib/history.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/app/complaints")({
 
 function Page() {
   const fn = useServerFn(generateComplaint);
+  const save = useServerFn(saveModuleRun);
   const [kind, setKind] = useState<"complaint" | "rti">("complaint");
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
@@ -37,6 +39,14 @@ function Page() {
     try {
       const res = await fn({ data: { ...form, kind } });
       setOutput(res.text);
+      void save({
+        data: {
+          module: "complaints",
+          title: `${kind === "rti" ? "RTI" : "Complaint"} · ${form.subject || form.authority}`,
+          input: { ...form, kind },
+          output: res,
+        },
+      }).catch(() => {});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed");
     } finally {

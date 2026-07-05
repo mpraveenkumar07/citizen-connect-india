@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getPolicyUpdates, type PolicyUpdate } from "@/lib/civic.functions";
+import { saveModuleRun } from "@/lib/history.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ const categoryColor: Record<PolicyUpdate["category"], string> = {
 
 function PolicyPage() {
   const fn = useServerFn(getPolicyUpdates);
+  const save = useServerFn(saveModuleRun);
   const [state, setState] = useState("Maharashtra");
   const [occupation, setOccupation] = useState("Small farmer");
   const [interests, setInterests] = useState("agriculture, subsidies, PM-KISAN, crop insurance");
@@ -43,6 +45,14 @@ function PolicyPage() {
       const { updates } = await fn({ data: { state, occupation, interests, timeframe } });
       setUpdates(updates);
       if (updates.length === 0) toast.error("No updates generated. Try broader interests.");
+      else void save({
+        data: {
+          module: "policy",
+          title: `${state} · ${occupation || "citizen"} · ${timeframe} · ${updates.length} updates`,
+          input: { state, occupation, interests, timeframe },
+          output: { updates },
+        },
+      }).catch(() => {});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to fetch updates");
     } finally {

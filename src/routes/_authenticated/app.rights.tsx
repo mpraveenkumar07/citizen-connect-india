@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { explainRights, type RightsAnswer } from "@/lib/civic.functions";
+import { saveModuleRun } from "@/lib/history.functions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/app/rights")({
 
 function RightsPage() {
   const fn = useServerFn(explainRights);
+  const save = useServerFn(saveModuleRun);
   const [situation, setSituation] = useState(
     "The police refused to file my FIR when I went to the station last night."
   );
@@ -34,6 +36,14 @@ function RightsPage() {
       const { answer } = await fn({ data: { situation, role, state } });
       setAnswer(answer);
       if (!answer) toast.error("Couldn't parse the response. Try rephrasing your situation.");
+      else void save({
+        data: {
+          module: "rights",
+          title: situation.slice(0, 80),
+          input: { situation, role, state },
+          output: { answer },
+        },
+      }).catch(() => {});
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to explain rights");
     } finally {

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MessageSquare, FileText, Search, Building2, BellRing, Scale, ClipboardList, LifeBuoy } from "lucide-react";
+import { MessageSquare, FileText, Search, Building2, BellRing, Scale, ClipboardList, LifeBuoy, History } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -55,6 +55,12 @@ const tiles = [
     icon: BellRing,
     title: "Policy & Law Update Engine",
     desc: "Personalised digest of new schemes, laws, notifications, and upcoming deadlines.",
+  },
+  {
+    to: "/app/history",
+    icon: History,
+    title: "History",
+    desc: "Every past run saved. Reopen inputs and outputs, or compare two runs side-by-side.",
   },
 ] as const;
 
