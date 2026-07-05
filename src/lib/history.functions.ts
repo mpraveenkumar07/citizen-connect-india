@@ -38,8 +38,8 @@ export const saveModuleRun = createServerFn({ method: "POST" })
     z.object({
       module: z.enum(MODULES),
       title: z.string().min(1).max(200),
-      input: z.unknown(),
-      output: z.unknown(),
+      input: z.any(),
+      output: z.any(),
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
