@@ -291,3 +291,199 @@ Prefer well-known real developments. If unsure of exact date, use an approximate
     return { updates };
   });
 
+// ---------- Rights & Constitution Assistant ----------
+
+export type RightsAnswer = {
+  summary: string;
+  rights: { title: string; article_or_law?: string; explanation: string }[];
+  example?: string;
+  what_you_can_do: string[];
+  escalation?: string;
+  disclaimer: string;
+};
+
+const rightsInput = z.object({
+  situation: z.string().min(5).max(1500),
+  role: z.string().max(80).optional().default(""),
+  state: z.string().max(80).optional().default(""),
+});
+
+export const explainRights = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => rightsInput.parse(d))
+  .handler(async ({ data }) => {
+    const ai = createLovableAi();
+    const prompt = `An Indian citizen describes a situation and wants to know their rights.
+
+Situation: "${data.situation}"
+Role/identity (if any): ${data.role || "not specified"}
+State: ${data.state || "not specified"}
+
+Return ONLY a JSON object (no markdown) of shape:
+{
+  "summary": string (2-3 sentence plain-language overview),
+  "rights": [{"title": string, "article_or_law": string (e.g. "Article 21", "Section 498A BNS", "RTI Act 2005 s.6"), "explanation": string}],
+  "example": string (a realistic short scenario, optional),
+  "what_you_can_do": [string, string, ...] (3-5 concrete steps),
+  "escalation": string (who to approach if the first step fails),
+  "disclaimer": "This is legal information, not legal advice. For representation, use the Legal Aid Finder."
+}
+
+Cite real Indian constitutional articles, acts, and sections. Never fabricate. If unsure of a specific section, describe the right without citing a number.`;
+
+    let raw = "";
+    try {
+      const res = await generateText({
+        model: ai(MODEL),
+        system: "You output only a valid JSON object. No markdown fences.",
+        prompt,
+      });
+      raw = res.text;
+    } catch (e) {
+      throw new Error("Failed to explain rights: " + (e instanceof Error ? e.message : String(e)));
+    }
+
+    const s = raw.indexOf("{");
+    const e = raw.lastIndexOf("}");
+    let answer: RightsAnswer | null = null;
+    if (s >= 0 && e > s) {
+      try {
+        answer = JSON.parse(raw.slice(s, e + 1)) as RightsAnswer;
+      } catch {
+        answer = null;
+      }
+    }
+    return { answer };
+  });
+
+// ---------- Application Tracker ----------
+
+export type TrackerStatus = {
+  stage: string;
+  status: "On track" | "Delayed" | "Action needed" | "Closed";
+  typical_timeline: string;
+  next_step: string;
+  deadline_note?: string;
+  escalation_path?: string;
+  helpline?: string;
+};
+
+const trackerInput = z.object({
+  applicationType: z.string().min(2).max(120),
+  authority: z.string().min(2).max(200),
+  filedOn: z.string().min(4).max(40),
+  referenceId: z.string().max(120).optional().default(""),
+  lastUpdate: z.string().max(500).optional().default(""),
+});
+
+export const trackApplication = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => trackerInput.parse(d))
+  .handler(async ({ data }) => {
+    const ai = createLovableAi();
+    const prompt = `Estimate the current status of a citizen's application filed with an Indian government authority.
+
+Application type: ${data.applicationType}
+Authority: ${data.authority}
+Filed on: ${data.filedOn}
+Reference ID: ${data.referenceId || "not provided"}
+Last known update from citizen: ${data.lastUpdate || "none"}
+
+Return ONLY a JSON object (no markdown):
+{
+  "stage": string (likely current stage in the process, e.g. "Under verification at Tehsildar office"),
+  "status": "On track" | "Delayed" | "Action needed" | "Closed",
+  "typical_timeline": string (statutory or expected timeline, e.g. "RTI: 30 days"),
+  "next_step": string (what the citizen should do now),
+  "deadline_note": string (if a statutory deadline has passed or is near, note it),
+  "escalation_path": string (First Appellate Authority, State Info Commission, CPGRAMS, ombudsman, etc.),
+  "helpline": string (relevant helpline / portal, only if you are confident)
+}
+
+Base timelines on real Indian rules (RTI Act 30 days, CPGRAMS 30 days, passport ~30 days, etc.). Never invent reference numbers.`;
+
+    let raw = "";
+    try {
+      const res = await generateText({
+        model: ai(MODEL),
+        system: "You output only a valid JSON object. No markdown fences.",
+        prompt,
+      });
+      raw = res.text;
+    } catch (e) {
+      throw new Error("Failed to track application: " + (e instanceof Error ? e.message : String(e)));
+    }
+
+    const s = raw.indexOf("{");
+    const e = raw.lastIndexOf("}");
+    let status: TrackerStatus | null = null;
+    if (s >= 0 && e > s) {
+      try {
+        status = JSON.parse(raw.slice(s, e + 1)) as TrackerStatus;
+      } catch {
+        status = null;
+      }
+    }
+    return { status };
+  });
+
+// ---------- Legal Aid Finder ----------
+
+export type LegalAidContact = {
+  name: string;
+  type: "NALSA" | "State DLSA" | "Helpline" | "NGO" | "Emergency";
+  scope?: string;
+  contact?: string;
+  address?: string;
+  website?: string;
+  when_to_use?: string;
+  free?: boolean;
+};
+
+const legalAidInput = z.object({
+  issue: z.string().min(5).max(600),
+  state: z.string().min(1).max(80),
+  city: z.string().max(80).optional().default(""),
+  urgency: z.enum(["emergency", "urgent", "normal"]).default("normal"),
+});
+
+export const findLegalAid = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => legalAidInput.parse(d))
+  .handler(async ({ data }) => {
+    const ai = createLovableAi();
+    const prompt = `A citizen needs legal aid in India.
+
+Issue: "${data.issue}"
+Location: ${data.city ? data.city + ", " : ""}${data.state}
+Urgency: ${data.urgency}
+
+Return ONLY a JSON array (no markdown) of 4-6 relevant contacts, mixing NALSA, State DLSA, national helplines, NGOs, and emergency numbers as appropriate:
+{"name": string, "type": "NALSA"|"State DLSA"|"Helpline"|"NGO"|"Emergency", "scope": string, "contact": string (real, well-known helpline number only — e.g. 112, 181, 1098, 15100, 1091 — else ""), "address": string, "website": string (official domain only if confident, else ""), "when_to_use": string, "free": boolean}
+
+If urgency is "emergency", put the most relevant emergency number first (112 all-India, 1091 women, 1098 child, 100 police, 108 medical). Never invent phone numbers or addresses.`;
+
+    let raw = "";
+    try {
+      const res = await generateText({
+        model: ai(MODEL),
+        system: "You output only valid JSON arrays. No markdown fences.",
+        prompt,
+      });
+      raw = res.text;
+    } catch (e) {
+      throw new Error("Failed to find legal aid: " + (e instanceof Error ? e.message : String(e)));
+    }
+
+    const s = raw.indexOf("[");
+    const e = raw.lastIndexOf("]");
+    let contacts: LegalAidContact[] = [];
+    if (s >= 0 && e > s) {
+      try {
+        const parsed = JSON.parse(raw.slice(s, e + 1));
+        if (Array.isArray(parsed)) contacts = parsed as LegalAidContact[];
+      } catch {
+        contacts = [];
+      }
+    }
+    return { contacts };
+  });
+
+
