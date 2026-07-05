@@ -25,6 +25,8 @@ const features = [
     to: "/app/chat",
     body: "Multilingual, voice-first conversational agent. Uses intent detection to route citizens to the right module, retains context across sessions, and personalises based on profile (age, state, occupation, income band).",
     bullets: ["22 Indian languages", "Voice ⇄ text", "Persistent citizen memory", "Escalates to human when needed"],
+    inputs: ["Free-text question (any Indian language)", "Optional profile: state, age, occupation"],
+    how: "Understands the intent, pulls relevant scheme / act / portal knowledge, and replies in plain language with step-by-step next actions and portal names.",
   },
   {
     icon: Sparkles,
@@ -33,6 +35,8 @@ const features = [
     to: "/app/schemes",
     body: "Continuously synced catalogue of Central and State schemes. Eligibility engine explains why a citizen qualifies, what documents are needed, and guides them through the actual application (via portal deep-link or generated form pack).",
     bullets: ["Central + State + District", "Plain-language eligibility", "Document checklist auto-generated", "Application deep-links"],
+    inputs: ["State", "Age & gender", "Occupation", "Annual household income", "Social category (optional)"],
+    how: "Matches the profile against Central + State welfare schemes and returns 6 best-fit schemes with eligibility, benefit, how to apply, and a confidence rating.",
   },
   {
     icon: Scale,
@@ -41,6 +45,8 @@ const features = [
     to: "/app/rights",
     body: "Explains fundamental rights, duties, and applicable laws with real-world examples. Clearly distinguishes legal information from legal advice and cross-links to the Legal Aid Finder for representation.",
     bullets: ["Constitution + BNS + IPC/CrPC transitions", "Case-example library", "Info-vs-advice guardrails", "Handoff to legal aid"],
+    inputs: ["Describe your situation", "Your role (tenant, employee, woman, etc.)", "State (optional)"],
+    how: "Returns a plain-language summary, the exact constitutional articles / BNS / act sections that apply, a realistic example, concrete next steps, and an escalation path.",
   },
   {
     icon: FileText,
@@ -49,6 +55,8 @@ const features = [
     to: "/app/complaints",
     body: "Drafts RTIs, grievances, consumer complaints, police complaint drafts, and legal notices from a short description. Auto-fills jurisdiction, statutes, and evidence sections; exports as PDF or submits digitally where APIs exist.",
     bullets: ["RTI, CPGRAMS, consumer, legal notice", "Section/act auto-citation", "Multi-format export", "e-Sign integration"],
+    inputs: ["Kind: RTI or complaint", "Your name & address", "Target authority", "Subject", "Details of the issue", "Language: English / Hindi"],
+    how: "Drafts a formal, ready-to-send letter in the correct format — RTI Act 2005 structure for RTIs, standard grievance format for complaints — under 400 words.",
   },
   {
     icon: Building2,
@@ -57,6 +65,8 @@ const features = [
     to: "/app/departments",
     body: "Given a problem, returns the correct department, office address, jurisdiction, contact channel, required forms, and prerequisites. Backed by a curated Central/State/ULB directory with weekly sync.",
     bullets: ["Central + State + Municipal", "Jurisdiction resolver", "Office maps + hours", "Form + document requirements"],
+    inputs: ["Describe the problem", "State", "City (optional)"],
+    how: "Returns 3-4 relevant offices (Central / State / District / Municipal) with jurisdiction, address guidance, forms, documents, and a 1-2 sentence action plan.",
   },
   {
     icon: ClipboardList,
@@ -65,6 +75,8 @@ const features = [
     to: "/app/tracker",
     body: "Unified inbox for every application, RTI, and grievance filed via CivicOS. Automated status polling where APIs exist, manual check-in prompts otherwise, and one-tap escalation when statutory timelines lapse.",
     bullets: ["Unified status inbox", "Statutory deadline alarms", "One-tap escalation", "Auto-generated reminders"],
+    inputs: ["Application type", "Authority", "Date filed", "Reference ID (optional)", "Last known update (optional)"],
+    how: "Estimates the likely current stage, marks it On track / Delayed / Action needed, shows the statutory timeline, your next step, and the escalation path if a deadline has lapsed.",
   },
   {
     icon: LifeBuoy,
@@ -73,6 +85,8 @@ const features = [
     to: "/app/legal-aid",
     body: "Recommends NALSA-empanelled legal aid centres, state DLSA offices, women/child helplines, NGOs, and emergency contacts based on issue type and geography.",
     bullets: ["NALSA / DLSA directory", "Category-tuned NGO match", "Emergency helplines", "Offline-capable contact card"],
+    inputs: ["Describe the issue", "State & city", "Urgency: emergency / urgent / normal"],
+    how: "Returns 4-6 matched contacts across NALSA, State DLSA, national helplines (112, 181, 1098…), NGOs, and emergency numbers — ordered by urgency, with when-to-use notes.",
   },
   {
     icon: BellRing,
@@ -81,6 +95,8 @@ const features = [
     to: "/app/policy",
     body: "Watches gazettes, PIB, court orders, and state notifications. Personalises alerts to each citizen's profile: 'A new scheme you're eligible for was launched today' or 'Deadline in 3 days'.",
     bullets: ["Gazette + PIB + court order ingest", "Profile-matched alerts", "Deadline countdowns", "Digest + push"],
+    inputs: ["State", "Occupation", "Interests / life areas", "Timeframe: 7 / 30 / 90 days"],
+    how: "Builds a 5-7 item personalised digest of recent schemes, laws, notifications and court orders — each with why-it-matters-for-you, action, and deadline countdown.",
   },
 ] as const;
 
@@ -113,6 +129,19 @@ function Features() {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-5 rounded-lg border border-border/60 bg-muted/40 p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-primary">Inputs you provide</div>
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {f.inputs.map((i) => (
+                  <li key={i}>
+                    <Badge variant="outline" className="text-xs font-normal">{i}</Badge>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-primary">How it works</div>
+              <p className="mt-1 text-sm text-muted-foreground">{f.how}</p>
+            </div>
             <Button asChild size="sm" className="mt-6">
               <Link to={f.to}>
                 Explore now <ArrowRight className="h-4 w-4" />
