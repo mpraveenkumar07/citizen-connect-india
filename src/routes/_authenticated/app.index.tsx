@@ -56,6 +56,12 @@ const tiles = [
     title: "Policy & Law Update Engine",
     desc: "Personalised digest of new schemes, laws, notifications, and upcoming deadlines.",
   },
+  {
+    to: "/app/history",
+    icon: History,
+    title: "History",
+    desc: "Every past run saved. Reopen inputs and outputs, or compare two runs side-by-side.",
+  },
 ] as const;
 
 function Dashboard() {
