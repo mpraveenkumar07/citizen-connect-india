@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  MessageSquare, Sparkles, Scale, FileText, Building2, ClipboardList, LifeBuoy, BellRing,
+  MessageSquare, Sparkles, Scale, FileText, Building2, ClipboardList, LifeBuoy, BellRing, ArrowRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -21,6 +22,7 @@ const features = [
     icon: MessageSquare,
     title: "AI Citizen Assistant",
     tag: "Core",
+    to: "/app/chat",
     body: "Multilingual, voice-first conversational agent. Uses intent detection to route citizens to the right module, retains context across sessions, and personalises based on profile (age, state, occupation, income band).",
     bullets: ["22 Indian languages", "Voice ⇄ text", "Persistent citizen memory", "Escalates to human when needed"],
   },
@@ -28,6 +30,7 @@ const features = [
     icon: Sparkles,
     title: "Government Scheme Eligibility",
     tag: "Discovery",
+    to: "/app/schemes",
     body: "Continuously synced catalogue of Central and State schemes. Eligibility engine explains why a citizen qualifies, what documents are needed, and guides them through the actual application (via portal deep-link or generated form pack).",
     bullets: ["Central + State + District", "Plain-language eligibility", "Document checklist auto-generated", "Application deep-links"],
   },
@@ -35,6 +38,7 @@ const features = [
     icon: Scale,
     title: "Rights & Constitution Assistant",
     tag: "Empowerment",
+    to: "/app/chat",
     body: "Explains fundamental rights, duties, and applicable laws with real-world examples. Clearly distinguishes legal information from legal advice and cross-links to the Legal Aid Finder for representation.",
     bullets: ["Constitution + BNS + IPC/CrPC transitions", "Case-example library", "Info-vs-advice guardrails", "Handoff to legal aid"],
   },
@@ -42,6 +46,7 @@ const features = [
     icon: FileText,
     title: "Smart Complaint Generator",
     tag: "Action",
+    to: "/app/complaints",
     body: "Drafts RTIs, grievances, consumer complaints, police complaint drafts, and legal notices from a short description. Auto-fills jurisdiction, statutes, and evidence sections; exports as PDF or submits digitally where APIs exist.",
     bullets: ["RTI, CPGRAMS, consumer, legal notice", "Section/act auto-citation", "Multi-format export", "e-Sign integration"],
   },
@@ -49,6 +54,7 @@ const features = [
     icon: Building2,
     title: "Government Department Finder",
     tag: "Navigation",
+    to: "/app/departments",
     body: "Given a problem, returns the correct department, office address, jurisdiction, contact channel, required forms, and prerequisites. Backed by a curated Central/State/ULB directory with weekly sync.",
     bullets: ["Central + State + Municipal", "Jurisdiction resolver", "Office maps + hours", "Form + document requirements"],
   },
@@ -56,6 +62,7 @@ const features = [
     icon: ClipboardList,
     title: "Application Tracker",
     tag: "Follow-through",
+    to: "/app",
     body: "Unified inbox for every application, RTI, and grievance filed via CivicOS. Automated status polling where APIs exist, manual check-in prompts otherwise, and one-tap escalation when statutory timelines lapse.",
     bullets: ["Unified status inbox", "Statutory deadline alarms", "One-tap escalation", "Auto-generated reminders"],
   },
@@ -63,6 +70,7 @@ const features = [
     icon: LifeBuoy,
     title: "Legal Aid Finder",
     tag: "Support",
+    to: "/app/departments",
     body: "Recommends NALSA-empanelled legal aid centres, state DLSA offices, women/child helplines, NGOs, and emergency contacts based on issue type and geography.",
     bullets: ["NALSA / DLSA directory", "Category-tuned NGO match", "Emergency helplines", "Offline-capable contact card"],
   },
@@ -70,6 +78,7 @@ const features = [
     icon: BellRing,
     title: "Policy & Law Update Engine",
     tag: "Proactive",
+    to: "/app/policy",
     body: "Watches gazettes, PIB, court orders, and state notifications. Personalises alerts to each citizen's profile: 'A new scheme you're eligible for was launched today' or 'Deadline in 3 days'.",
     bullets: ["Gazette + PIB + court order ingest", "Profile-matched alerts", "Deadline countdowns", "Digest + push"],
   },
@@ -104,6 +113,11 @@ function Features() {
                 </li>
               ))}
             </ul>
+            <Button asChild size="sm" className="mt-6">
+              <Link to={f.to}>
+                Explore now <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         ))}
       </div>
